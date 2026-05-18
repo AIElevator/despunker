@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-const FREE_LIMIT = 3;
-const STORAGE_KEY = "despunker_count";
+import { useState } from "react";
 
 const FORMATS = [
   {
@@ -69,27 +66,18 @@ const FORMATS = [
 ];
 
 export default function Home() {
-  const [format, setFormat]           = useState("prose");
-  const [input, setInput]             = useState("");
-  const [output, setOutput]           = useState("");
-  const [changes, setChanges]         = useState("");
-  const [loading, setLoading]         = useState(false);
-  const [error, setError]             = useState("");
-  const [copied, setCopied]           = useState(false);
-  const [usageCount, setUsageCount]   = useState(0);
-  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [format, setFormat] = useState("prose");
+  const [input, setInput]   = useState("");
+  const [output, setOutput] = useState("");
+  const [changes, setChanges] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError]   = useState("");
+  const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const stored = parseInt(localStorage.getItem(STORAGE_KEY) ?? "0", 10);
-    setUsageCount(stored);
-  }, []);
-
-  const remaining  = Math.max(0, FREE_LIMIT - usageCount);
   const activeFormat = FORMATS.find((f) => f.id === format) ?? FORMATS[0];
 
   async function handleDespunk() {
     if (!input.trim()) { setError("Please paste some text first."); return; }
-    if (usageCount >= FREE_LIMIT) { setShowUpgrade(true); return; }
 
     setLoading(true);
     setError("");
@@ -106,9 +94,6 @@ export default function Home() {
       if (!res.ok) { setError(data.error ?? "Something went wrong. Please try again."); return; }
       setOutput(data.output ?? "");
       setChanges(data.changes ?? "");
-      const newCount = usageCount + 1;
-      setUsageCount(newCount);
-      localStorage.setItem(STORAGE_KEY, String(newCount));
     } catch {
       setError("Network error. Please check your connection and try again.");
     } finally {
@@ -129,29 +114,12 @@ export default function Home() {
 
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto flex items-center">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center text-white font-bold text-sm">
               BD
             </div>
-            <div>
-              <span className="font-bold text-gray-900 text-lg tracking-tight">British Language Despunker</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            {remaining > 0 ? (
-              <span className="text-sm text-gray-500">
-                <span className="font-semibold text-violet-600">{remaining}</span> free{" "}
-                {remaining === 1 ? "use" : "uses"} left
-              </span>
-            ) : (
-              <button
-                onClick={() => setShowUpgrade(true)}
-                className="text-sm bg-violet-600 hover:bg-violet-500 text-white px-4 py-1.5 rounded-full transition-colors font-medium"
-              >
-                Upgrade — £9.99/mo
-              </button>
-            )}
+            <span className="font-bold text-gray-900 text-lg tracking-tight">British Language Despunker</span>
           </div>
         </div>
       </header>
@@ -200,9 +168,7 @@ export default function Home() {
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={
-                  "Paste anything here — a voice note transcript, bullet points, a badly written paragraph, a brain dump. The messier the better."
-                }
+                placeholder="Paste anything here — a voice note transcript, bullet points, a badly written paragraph, a brain dump. The messier the better."
                 rows={12}
                 className="w-full border border-gray-200 rounded-xl p-4 text-gray-800 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-violet-400 text-sm leading-relaxed bg-gray-50"
               />
@@ -296,56 +262,8 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-gray-200 bg-white px-6 py-5 text-center text-gray-400 text-sm">
-        British Language Despunker · {FREE_LIMIT} free uses, then £9.99/month for unlimited
+        British Language Despunker
       </footer>
-
-      {/* Upgrade modal */}
-      {showUpgrade && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          onClick={(e) => e.target === e.currentTarget && setShowUpgrade(false)}
-        >
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-2xl border border-gray-100">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center text-white text-2xl mx-auto mb-4">
-              BD
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">You have used your free despunks</h2>
-            <p className="text-gray-500 mb-6 leading-relaxed">
-              Upgrade for unlimited use across all six formats.
-            </p>
-            <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-              <p className="text-3xl font-bold text-gray-900 mb-1">
-                £9.99<span className="text-lg font-normal text-gray-400">/month</span>
-              </p>
-              <p className="text-gray-400 text-sm">Cancel any time.</p>
-              <ul className="mt-4 text-sm text-gray-600 text-left space-y-2">
-                {[
-                  "Unlimited despunks",
-                  "All six output formats",
-                  "British English guardrails built in",
-                  "What changed — explained every time",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <span className="text-emerald-500 font-bold">✓</span> {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <a
-              href="https://buy.stripe.com/YOUR_STRIPE_PAYMENT_LINK"
-              className="block w-full py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold transition-colors mb-3"
-            >
-              Get unlimited access
-            </a>
-            <button
-              onClick={() => setShowUpgrade(false)}
-              className="text-gray-400 hover:text-gray-600 text-sm transition-colors"
-            >
-              Maybe later
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
