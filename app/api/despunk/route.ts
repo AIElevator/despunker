@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 Apply these writing rules strictly:
 - British English spelling and vocabulary only (organise, colour, programme, etc.)
 - No emojis
-- No dash used as pause punctuation
+- No dashes used as sentence punctuation (no em dashes or hyphens inserted mid-sentence as a pause or parenthetical). Dashes are only acceptable in number ranges (e.g. 9–5) and compound words (e.g. follow-up, well-known)
 - No Oxford comma
 - Collective nouns treated as plural
 - Active voice preferred
